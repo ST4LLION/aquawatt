@@ -241,91 +241,77 @@ footer span{color:var(--orange)}
 /* ══ RESPONSIVE / MOBILE ══ */
 @media (max-width: 768px) {
 
-  body { overflow-x: hidden !important; }
-
-  /* ── Header: โลโก้+ชื่อชิดบน, เวลาชิดขอบล่าง ── */
+  /* Header — compact single row */
   header {
-    padding: 0 !important;
+    padding: 6px 10px !important;
     height: auto !important;
     min-height: unset !important;
-    align-items: stretch !important;
-    display: flex !important;
   }
-  .hdr-left {
-    gap: 6px !important;
-    min-width: 0 !important;
-    flex: 1 !important;
-    padding: 4px 8px !important;
-    align-items: flex-start !important;
-  }
-  header img[style*="border-radius:50%"],
-  .hdr-logo {
-    width: 38px !important;
-    height: 38px !important;
-    flex-shrink: 0 !important;
-    margin-top: 2px !important;
-  }
-  header .hdr-left > div {
-    min-width: 0 !important;
-    flex: 1 !important;
-    overflow: hidden !important;
-  }
-  /* ชื่อโปรเจค — ชิดบน */
-  header .hdr-left > div > div:first-child {
-    font-size: 8.5px !important;
-    letter-spacing: 0 !important;
-    white-space: normal !important;
-    word-break: break-word !important;
-    line-height: 1.3 !important;
-  }
-  header .hdr-left > div > div:last-child {
-    font-size: 7px !important;
+  .hdr-left { gap: 6px !important; }
+  .hdr-logo { width: 36px !important; height: 36px !important; flex-shrink:0 !important; }
+  .hdr-title {
+    font-size: 9px !important;
+    line-height: 1.2 !important;
     white-space: normal !important;
   }
-  /* เวลา+วัน — ชิดล่าง (ขอบแท็บส้ม) */
-  .hdr-right {
-    flex-shrink: 0 !important;
+  .site-title { font-size: 9px !important; letter-spacing: 0 !important; }
+  .site-sub   { font-size: 7px !important; }
+  .hdr-right  { text-align: right !important; }
+  .hdr-clock  { font-size: 16px !important; }
+  .hdr-date   { font-size: 9px !important; }
+
+  /* Banner */
+  div[style*="grid-template-columns:auto auto 1fr"] {
     display: flex !important;
-    align-items: flex-end !important;
-    padding: 0 8px 4px 0 !important;
-  }
-  .hdr-clock { font-size: 18px !important; }
-  .hdr-date  { font-size: 9px !important; }
-
-  /* ── Banner ส้ม — ซ่อนข้อความ ── */
-  div[style*="background:#F47920"] {
-    padding: 3px 10px !important;
-  }
-  div[style*="background:#F47920"] span {
-    display: none !important;
+    flex-direction: column !important;
+    gap: 2px !important;
+    padding: 4px 10px !important;
+    font-size: 9px !important;
   }
 
-  /* Page */
+  /* Page padding */
   .page { padding: 6px !important; }
 
-  /* ปุ่ม Today/This Week/This Month — แถวเดียว */
-  .sum-btns { display: flex !important; flex-wrap: nowrap !important; gap: 3px !important; }
-  .sum-btn  { font-size: 9px !important; padding: 3px 7px !important; white-space: nowrap !important; }
+  /* Summary header — ปุ่มเรียงแถวเดียว */
+  .card-hdr { flex-wrap: nowrap !important; align-items: center !important; }
+  .sum-btns {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 4px !important;
+  }
+  .sum-btn {
+    font-size: 9px !important;
+    padding: 3px 8px !important;
+    white-space: nowrap !important;
+  }
 
-  /* Stat cards */
+  /* Stat cards — scroll horizontal */
   div[style*="display:flex"][style*="gap:10px"] {
     overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
     flex-wrap: nowrap !important;
-    padding-bottom: 4px !important;
+    padding-bottom: 6px !important;
   }
-  .stat-card { min-width: 100px !important; flex-shrink: 0 !important; }
-  .stat-val  { font-size: 24px !important; }
+  .stat-card { min-width: 110px !important; flex-shrink: 0 !important; }
+  .stat-val  { font-size: 26px !important; }
 
-  /* Charts */
-  .chart-box, .chart-box.h260 { height: 180px !important; }
+  /* Chart heights */
+  .chart-box { height: 180px !important; }
+  .chart-box.h260 { height: 180px !important; }
+
+  /* Card */
+  .card { margin-bottom: 8px !important; }
+  .card-hdr { padding: 6px 10px !important; }
+
+  /* Tab bar */
+  .tab-bar { overflow-x: auto !important; -webkit-overflow-scrolling: touch !important; }
+  .tab-btn { font-size: 9px !important; white-space: nowrap !important; padding: 6px 10px !important; }
 
   /* Grid */
-  .grid { gap: 6px !important; }
+  .grid { gap: 8px !important; }
   .s6, .s4, .s3 { grid-column: span 12 !important; }
 
-  /* Tab */
-  .tab-bar { overflow-x: auto !important; }
-  .tab-btn { font-size: 9px !important; white-space: nowrap !important; }
+  /* Status text */
   #sumStatus { font-size: 10px !important; }
 }
 </style>
@@ -356,8 +342,7 @@ footer span{color:var(--orange)}
   display:grid;grid-template-columns:auto auto 1fr;align-items:center;gap:16px;
   font-family:'Share Tech Mono',monospace;letter-spacing:.3px">
   <span style="color:#fff;font-size:14px;white-space:nowrap">KMUTNB · KING MONGKUT'S UNIVERSITY OF TECHNOLOGY NORTH BANGKOK</span>
-  <span></span>
-  <span style="color:rgba(255,255,255,.9);font-size:12px;white-space:nowrap;text-align:right">DEPARTMENT OF ELECTRICAL AND COMPUTER ENGINEERING · FACULTY OF ENGINEERING</span>
+
 </div>
 
 <!-- ══════════════════════════════════════ PAGE: LIVE ══════════════════════════════════════ -->
