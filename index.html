@@ -360,10 +360,13 @@ footer span{color:var(--orange)}
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
         ACCUMULATED SUMMARY
       </div>
-      <div class="range-btns">
-        <button class="range-btn active" id="sum-btn-day"   onclick="loadSummary('day')">Today</button>
-        <button class="range-btn"        id="sum-btn-week"  onclick="loadSummary('week')">This Week</button>
-        <button class="range-btn"        id="sum-btn-month" onclick="loadSummary('month')">This Month</button>
+      <div class="range-btns" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+        <button class="range-btn active" id="sum-btn-day"   onclick="setSumMode('day')">Day</button>
+        <input type="date"  id="sum-date"  onchange="loadSummary()"
+               style="background:var(--s2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:'Share Tech Mono',monospace;font-size:11px;padding:4px 6px">
+        <button class="range-btn"        id="sum-btn-month" onclick="setSumMode('month')">Month</button>
+        <input type="month" id="sum-month" onchange="loadSummary()" style="display:none;
+               background:var(--s2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:'Share Tech Mono',monospace;font-size:11px;padding:4px 6px">
       </div>
     </div>
     <div id="sumStatus" style="font-size:11px;color:var(--dim2);font-family:'Share Tech Mono',monospace;margin:4px 14px 8px"></div>
@@ -376,12 +379,12 @@ footer span{color:var(--orange)}
         <div style="font-size:12px;color:var(--dim2);font-family:'Share Tech Mono',monospace">Liters</div>
       </div>
       <div style="flex:1;background:rgba(65,184,245,.06);border:1px solid rgba(65,184,245,.2);border-radius:4px;padding:10px 14px">
-        <div style="font-family:'Orbitron',monospace;font-size:9px;letter-spacing:1.5px;color:var(--dim2)">TOTAL OUTPUT WATER</div>
+        <div style="font-family:'Orbitron',monospace;font-size:9px;letter-spacing:1.5px;color:var(--dim2)">TOTAL USAGE WATER</div>
         <div class="metric-big m36" id="sum-output" style="color:var(--blue)">--</div>
         <div style="font-size:12px;color:var(--dim2);font-family:'Share Tech Mono',monospace">Liters</div>
       </div>
       <div style="flex:1;background:rgba(34,212,200,.06);border:1px solid rgba(34,212,200,.2);border-radius:4px;padding:10px 14px">
-        <div style="font-family:'Orbitron',monospace;font-size:9px;letter-spacing:1.5px;color:var(--dim2)">TOTAL OUTPUT2 WATER</div>
+        <div style="font-family:'Orbitron',monospace;font-size:9px;letter-spacing:1.5px;color:var(--dim2)">TOTAL DRAIN OUT WATER</div>
         <div class="metric-big m36" id="sum-output2" style="color:var(--cyan)">--</div>
         <div style="font-size:12px;color:var(--dim2);font-family:'Share Tech Mono',monospace">Liters</div>
       </div>
@@ -397,126 +400,45 @@ footer span{color:var(--orange)}
       </div>
     </div>
 
+    <!-- INPUT vs OUTPUT comparison -->
+    <div style="padding:0 14px 14px">
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:stretch">
+        <div style="flex:1;min-width:150px;background:rgba(244,121,32,.06);border:1px solid rgba(244,121,32,.25);border-radius:4px;padding:10px 14px">
+          <div style="font-family:'Orbitron',monospace;font-size:8px;letter-spacing:1px;color:var(--dim2)">TOTAL INPUT WATER</div>
+          <div class="metric-big m36" id="cmp-input" style="color:var(--orange)">-- L</div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:center;font-family:'Orbitron',monospace;font-size:22px;color:var(--dim2)">⇄</div>
+        <div style="flex:1.5;min-width:220px;background:rgba(65,184,245,.06);border:1px solid rgba(65,184,245,.25);border-radius:4px;padding:10px 14px">
+          <div style="font-family:'Orbitron',monospace;font-size:8px;letter-spacing:1px;color:var(--dim2)">TOTAL WATER OUT  (Usage + Drain + Brine)</div>
+          <div class="metric-big m36" id="cmp-output" style="color:var(--blue)">-- L</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--dim2);margin-top:3px">
+            Usage <b id="cmp-usage" style="color:var(--blue)">--</b> + Drain <b id="cmp-drain" style="color:var(--cyan)">--</b> + Brine <b id="cmp-brine" style="color:var(--red)">--</b>
+          </div>
+        </div>
+        <div style="flex:1;min-width:150px;background:rgba(0,0,0,.04);border:1px solid var(--border);border-radius:4px;padding:10px 14px">
+          <div style="font-family:'Orbitron',monospace;font-size:8px;letter-spacing:1px;color:var(--dim2)">DIFFERENCE (In − Out)</div>
+          <div class="metric-big m36" id="cmp-diff" style="color:var(--text)">--</div>
+        </div>
+      </div>
+    </div>
+
     <!-- Bar charts — 1 per row -->
     <div style="padding:0 14px 14px;display:flex;flex-direction:column;gap:14px">
       <div>
         <div id="lbl-sum-water" style="font-family:'Orbitron',monospace;font-size:9px;letter-spacing:1.5px;color:var(--dim2);margin-bottom:6px">WATER VOLUME — Daily Breakdown (L)</div>
-        <div class="chart-box h260"><canvas id="c-sum-water"></canvas></div>
+        <div class="chart-box h260" style="overflow-x:auto;overflow-y:hidden"><div id="wrap-sum-water" style="height:100%;min-width:100%;position:relative"><canvas id="c-sum-water"></canvas></div></div>
       </div>
       <div>
         <div id="lbl-sum-energy" style="font-family:'Orbitron',monospace;font-size:9px;letter-spacing:1.5px;color:var(--dim2);margin-bottom:6px">ENERGY — Daily Breakdown (kWh)</div>
-        <div class="chart-box h260"><canvas id="c-sum-energy"></canvas></div>
+        <div class="chart-box h260" style="overflow-x:auto;overflow-y:hidden"><div id="wrap-sum-energy" style="height:100%;min-width:100%;position:relative"><canvas id="c-sum-energy"></canvas></div></div>
       </div>
     </div>
 
-    <!-- Trend line charts — same period as bar charts above -->
-    <div style="padding:0 14px 14px">
-
-      <!-- 8 trend charts — 1 per row -->
-      <div style="display:flex;flex-direction:column;gap:14px">
-        <div>
-          <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--orange);margin-bottom:4px">▸ INPUTWATER (L)</div>
-          <div class="chart-box h220"><canvas id="c-inputwater"></canvas></div>
-        </div>
-        <div>
-          <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--blue);margin-bottom:4px">▸ OUTPUTWATER (L)</div>
-          <div class="chart-box h220"><canvas id="c-outputwater"></canvas></div>
-        </div>
-        <div>
-          <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--cyan);margin-bottom:4px">▸ OUTPUTWATER 2 (L)</div>
-          <div class="chart-box h220"><canvas id="c-outputwater2"></canvas></div>
-        </div>
-        <div>
-          <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--red);margin-bottom:4px">▸ BRINEWATER (L)</div>
-          <div class="chart-box h220"><canvas id="c-brinewater"></canvas></div>
-        </div>
-        <div>
-          <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--yellow);margin-bottom:4px">▸ POWER (W)</div>
-          <div id="powerAlert" style="display:inline-block;font-size:9px;font-family:'Share Tech Mono',monospace;padding:2px 8px;border-radius:3px;margin-bottom:4px"></div>
-          <div class="chart-box h220"><canvas id="c-power"></canvas></div>
-        </div>
-        <div>
-          <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#ffa726;margin-bottom:4px">▸ ENERGY (kWh)</div>
-          <div class="chart-box h220"><canvas id="c-energy"></canvas></div>
-        </div>
-        <div>
-          <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#ab47bc;margin-bottom:4px">▸ VOLTAGE (V)</div>
-          <div class="chart-box h220"><canvas id="c-voltage"></canvas></div>
-        </div>
-        <div>
-          <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#29b6f6;margin-bottom:4px">▸ CURRENT (A)</div>
-          <div class="chart-box h220"><canvas id="c-current"></canvas></div>
-        </div>
-      </div>
-    </div>
   </div>
 
 
 
 
-<!-- ══════════════════════════════════════ PAGE: HISTORY ══════════════════════════════════════ -->
-<div class="page" id="page-history">
-  <div class="grid g12" style="margin-bottom:14px">
-    <div class="card s12" style="animation-delay:.05s">
-      <div class="card-hdr">
-        <div class="card-title">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-          GOOGLE SHEETS — HISTORICAL DATA
-        </div>
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-          <div class="range-btns" id="rangeBtns">
-            <button class="range-btn active" onclick="setRange('today')">Today</button>
-            <button class="range-btn" onclick="setRange('3d')">3 Days</button>
-            <button class="range-btn" onclick="setRange('7d')">7 Days</button>
-            <button class="range-btn" onclick="setRange('30d')">30 Days</button>
-          </div>
-          <button class="btn btn-orange" style="padding:5px 14px;font-size:9px" onclick="loadSheets()">↻ REFRESH</button>
-        </div>
-      </div>
-      <div id="sheetsStatus" style="font-size:11px;color:var(--dim2);font-family:'Share Tech Mono',monospace;margin-bottom:10px"></div>
-    </div>
-  </div>
-
-  <!-- History charts -->
-  <div class="grid g12" style="margin-bottom:14px">
-    <div class="card s12">
-      <div class="card-hdr"><div class="card-title">WATER FLOW — Historical</div></div>
-      <div style="height:200px;padding:10px 14px"><canvas id="c-hflow"></canvas></div>
-    </div>
-  </div>
-  <div class="grid g12" style="margin-bottom:14px">
-    <div class="card s6">
-      <div class="card-hdr"><div class="card-title">POWER (W)</div></div>
-      <div style="height:160px;padding:10px 14px"><canvas id="c-hpower"></canvas></div>
-    </div>
-    <div class="card s6">
-      <div class="card-hdr"><div class="card-title">VOLTAGE &amp; CURRENT</div></div>
-      <div style="height:160px;padding:10px 14px"><canvas id="c-hvolt"></canvas></div>
-    </div>
-  </div>
-  <!-- Recent data table -->
-  <div class="grid g12">
-    <div class="card s12">
-      <div class="card-hdr"><div class="card-title">RECENT DATA (last 50 rows)</div></div>
-      <div style="overflow-x:auto;padding:0 14px 14px">
-        <table style="width:100%;border-collapse:collapse;font-family:'Share Tech Mono',monospace;font-size:11px">
-          <thead><tr style="color:var(--dim2);border-bottom:1px solid rgba(244,121,32,.15)">
-            <th style="text-align:left;padding:6px 8px">Timestamp</th>
-            <th style="text-align:right;padding:6px 8px;color:var(--orange)">Input (L)</th>
-            <th style="text-align:right;padding:6px 8px;color:var(--blue)">Output (L)</th>
-            <th style="text-align:right;padding:6px 8px;color:var(--red)">Waste (L)</th>
-            <th style="text-align:right;padding:6px 8px;color:var(--yellow)">Power (W)</th>
-            <th style="text-align:right;padding:6px 8px;color:var(--green)">Eff %</th>
-            <th style="text-align:right;padding:6px 8px">CumIn</th>
-            <th style="text-align:right;padding:6px 8px">CumOut</th>
-          </tr></thead>
-          <tbody id="sheetsTable"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-</div><!-- /page-history -->
 
 <script>
 
@@ -697,8 +619,37 @@ function setPill(type, txt) {
   }
 }
 
+// ── _renderCompare: Input water vs total Output (Usage + Drain + Brine) ──
+function _renderCompare(input, usage, drain, brine) {
+  const out  = usage + drain + brine;
+  const diff = input - out;
+  set('cmp-input',  input.toFixed(2) + ' L');
+  set('cmp-output', out.toFixed(2)   + ' L');
+  set('cmp-usage',  usage.toFixed(2) + ' L');
+  set('cmp-drain',  drain.toFixed(2) + ' L');
+  set('cmp-brine',  brine.toFixed(2) + ' L');
+  const el = document.getElementById('cmp-diff');
+  if (el) {
+    const sign = diff >= 0 ? '+' : '−';
+    const pct  = input > 0 ? (Math.abs(diff) / input * 100).toFixed(1) : '0.0';
+    el.textContent = sign + Math.abs(diff).toFixed(2) + ' L (' + pct + '%)';
+  }
+}
+
 // ── _renderSumCharts: render bar charts for ACCUMULATED SUMMARY ──
 function _renderSumCharts(labels, rows) {
+  // Size the scroll wrappers so bars never get cramped:
+  // give each day-group ~64px; if total exceeds the visible area the box scrolls.
+  const PER_BAR = 64;
+  const need = labels.length * PER_BAR;
+  ['wrap-sum-water', 'wrap-sum-energy'].forEach(id => {
+    const w = document.getElementById(id);
+    if (!w) return;
+    const box = w.parentElement;
+    const avail = box ? box.clientWidth : 0;
+    w.style.width = need > avail ? (need + 'px') : '100%';
+  });
+
   // Water volume bar chart
   const wc = CC.sumWater;
   if (wc) {
@@ -707,14 +658,14 @@ function _renderSumCharts(labels, rows) {
     wc.data.datasets[1].data = rows.map(r => r.output);
     wc.data.datasets[2].data = rows.map(r => r.output2 || 0);
     wc.data.datasets[3].data = rows.map(r => r.brine);
-    wc.update();
+    wc.resize(); wc.update();
   }
   // Energy bar chart
   const ec = CC.sumEnergy;
   if (ec) {
     ec.data.labels = [...labels];
     ec.data.datasets[0].data = rows.map(r => r.energy);
-    ec.update();
+    ec.resize(); ec.update();
   }
 }
 
@@ -726,10 +677,10 @@ CC={
     {label:'Inputwater (L)',data:[],borderColor:'#F47920',backgroundColor:'rgba(244,121,32,.18)',borderWidth:2,tension:.4,fill:true,pointRadius:3,pointHoverRadius:7,pointBackgroundColor:"#fff",pointBorderWidth:1.5,pointHoverRadius:4}
   ]),
   outputwater: mkChart('c-outputwater','line',[
-    {label:'Outputwater (L)',data:[],borderColor:'#41b8f5',backgroundColor:'rgba(65,184,245,.18)',borderWidth:2,tension:.4,fill:true,pointRadius:3,pointHoverRadius:7,pointBackgroundColor:"#fff",pointBorderWidth:1.5,pointHoverRadius:4}
+    {label:'Usage water (L)',data:[],borderColor:'#41b8f5',backgroundColor:'rgba(65,184,245,.18)',borderWidth:2,tension:.4,fill:true,pointRadius:3,pointHoverRadius:7,pointBackgroundColor:"#fff",pointBorderWidth:1.5,pointHoverRadius:4}
   ]),
   outputwater2:mkChart('c-outputwater2','line',[
-    {label:'Outputwater2 (L)',data:[],borderColor:'#22d4c8',backgroundColor:'rgba(34,212,200,.18)',borderWidth:2,tension:.4,fill:true,pointRadius:3,pointHoverRadius:7,pointBackgroundColor:"#fff",pointBorderWidth:1.5,pointHoverRadius:4}
+    {label:'Drain out water (L)',data:[],borderColor:'#22d4c8',backgroundColor:'rgba(34,212,200,.18)',borderWidth:2,tension:.4,fill:true,pointRadius:3,pointHoverRadius:7,pointBackgroundColor:"#fff",pointBorderWidth:1.5,pointHoverRadius:4}
   ]),
   brinewater:  mkChart('c-brinewater','line',[
     {label:'Brinewater (L)',data:[],borderColor:'#f0483e',backgroundColor:'rgba(240,72,62,.18)',borderWidth:2,tension:.4,fill:true,pointRadius:3,pointHoverRadius:7,pointBackgroundColor:"#fff",pointBorderWidth:1.5,pointHoverRadius:4}
@@ -749,8 +700,8 @@ CC={
   ]),
   hflow: mkChart('c-hflow','line',[
     {label:'Input (L)',   data:[],borderColor:'#F47920',backgroundColor:'rgba(244,121,32,.1)',borderWidth:2,tension:.3,fill:true, pointRadius:3,pointHoverRadius:7,pointBackgroundColor:"#fff",pointBorderWidth:1.5},
-    {label:'Output (L)',  data:[],borderColor:'#41b8f5',backgroundColor:'rgba(65,184,245,.1)', borderWidth:2,tension:.3,fill:false,pointRadius:3,pointHoverRadius:7,pointBackgroundColor:"#fff",pointBorderWidth:1.5},
-    {label:'Output2 (L)', data:[],borderColor:'#22d4c8',backgroundColor:'rgba(34,212,200,.1)', borderWidth:2,tension:.3,fill:false,pointRadius:3,pointHoverRadius:7,pointBackgroundColor:"#fff",pointBorderWidth:1.5},
+    {label:'Usage water (L)',  data:[],borderColor:'#41b8f5',backgroundColor:'rgba(65,184,245,.1)', borderWidth:2,tension:.3,fill:false,pointRadius:3,pointHoverRadius:7,pointBackgroundColor:"#fff",pointBorderWidth:1.5},
+    {label:'Drain out water (L)', data:[],borderColor:'#22d4c8',backgroundColor:'rgba(34,212,200,.1)', borderWidth:2,tension:.3,fill:false,pointRadius:3,pointHoverRadius:7,pointBackgroundColor:"#fff",pointBorderWidth:1.5},
     {label:'Brine (L)',   data:[],borderColor:'#f0483e',backgroundColor:'rgba(240,72,62,.1)',  borderWidth:2,tension:.3,fill:false,pointRadius:3,pointHoverRadius:7,pointBackgroundColor:"#fff",pointBorderWidth:1.5},
   ],{plugins:{datalabels:{display:false}}}),
   hvolt: mkChart('c-hvolt','line',[
@@ -763,8 +714,8 @@ CC={
   // Summary bar charts
   sumWater:  mkChart('c-sum-water','bar',[
     {label:'Input (L)',   data:[],backgroundColor:'rgba(244,121,32,.7)'},
-    {label:'Output (L)',  data:[],backgroundColor:'rgba(65,184,245,.7)'},
-    {label:'Output2 (L)', data:[],backgroundColor:'rgba(34,212,200,.6)'},
+    {label:'Usage water (L)',  data:[],backgroundColor:'rgba(65,184,245,.7)'},
+    {label:'Drain out water (L)', data:[],backgroundColor:'rgba(34,212,200,.6)'},
     {label:'Brine (L)',   data:[],backgroundColor:'rgba(240,72,62,.6)'},
   ],{plugins:{datalabels:{display:function(ctx){return ctx.dataset.data[ctx.dataIndex]>0;},anchor:'end',align:'end',offset:2,color:'#c8d8e8',font:{family:"'Share Tech Mono'",size:9,weight:'bold'},formatter:function(v){return v>0?v.toFixed(2):';'}}}}),
     sumEnergy: mkChart('c-sum-energy','bar',[
@@ -824,16 +775,46 @@ function fmtBkkTime(s) {
 // ════════════════════════════════════════════════════════════════
 
 // ── Summary bar + stat cards ──
-function loadSummary(period) {
-  ['day','week','month'].forEach(p => {
-    const btn = document.getElementById('sum-btn-'+p);
-    if (btn) btn.classList.toggle('active', p === period);
-  });
+// ── Day/Month mode + date/month pickers ──
+let SUM_MODE = 'day';
+function _todayBkkDateStr() {
+  const TZ = 7 * 3600000;
+  const b = new Date(Date.now() + TZ);
+  return b.getUTCFullYear() + '-' + String(b.getUTCMonth()+1).padStart(2,'0') + '-' + String(b.getUTCDate()).padStart(2,'0');
+}
+function _thisMonthBkkStr() { return _todayBkkDateStr().slice(0, 7); }
+
+function setSumMode(mode) {
+  SUM_MODE = mode;
+  const bd = document.getElementById('sum-btn-day');
+  const bm = document.getElementById('sum-btn-month');
+  const id = document.getElementById('sum-date');
+  const im = document.getElementById('sum-month');
+  if (bd) bd.classList.toggle('active', mode === 'day');
+  if (bm) bm.classList.toggle('active', mode === 'month');
+  if (id) id.style.display = mode === 'day'   ? '' : 'none';
+  if (im) im.style.display = mode === 'month' ? '' : 'none';
+  if (id && !id.value) id.value = _todayBkkDateStr();
+  if (im && !im.value) im.value = _thisMonthBkkStr();
+  loadSummary();
+}
+
+// ── Summary bar + stat cards ──
+function loadSummary(periodOverride) {
+  const period = periodOverride || SUM_MODE;
+  SUM_MODE = period;
 
   const status = document.getElementById('sumStatus');
   if (status) status.textContent = 'Loading...';
 
-  const url = SHEETS_URL + '?action=summary&period=' + period;
+  let url = SHEETS_URL + '?action=summary&period=' + period;
+  if (period === 'day') {
+    const dv = (document.getElementById('sum-date') || {}).value;
+    if (dv) url += '&date=' + dv;
+  } else {
+    const mv = (document.getElementById('sum-month') || {}).value;
+    if (mv) url += '&month=' + mv;
+  }
 
   fetch(url, { redirect: 'follow' })
     .then(r => {
@@ -863,7 +844,7 @@ function loadSummary(period) {
       };
       const fmtRaw = fmtBkk;
       let displayStart = d.start;
-      const label = { day:'Today', week:'This Week', month:'This Month' }[period];
+      const label = period === 'day' ? 'Day' : 'Month';
       if (status) status.textContent = label + ' · ' + fmtRaw(displayStart) + ' → ' + fmtBkk(d.end) + ' (' + d.records + ' records)';
 
       // ── Stat cards ──
@@ -873,8 +854,16 @@ function loadSummary(period) {
       set('sum-brine',   d.totalBrine.toFixed(2));
       set('sum-energy',  d.energyUsed.toFixed(2));
 
+      // ── Input vs Output comparison ──
+      _renderCompare(
+        d.totalInput || 0,
+        d.totalOutput || 0,
+        (d.totalOutput2 || 0),
+        d.totalBrine || 0
+      );
+
       // ── Chart axis label ──
-      const breakdown = { day:'Daily Breakdown', week:'Weekly Breakdown', month:'Monthly Breakdown' }[period];
+      const breakdown = period === 'day' ? 'Daily Breakdown' : 'Monthly Breakdown';
       const wlbl = document.getElementById('lbl-sum-water');
       const elbl = document.getElementById('lbl-sum-energy');
       if (wlbl) wlbl.textContent = 'WATER VOLUME — ' + breakdown + ' (L)';
@@ -897,8 +886,7 @@ function loadSummary(period) {
         })));
       }
 
-      // ── Trend line charts (8 charts) ── load from readHistory
-      _loadTrendForPeriod(period);
+      // (trend line charts removed — bar charts only)
     })
     .catch(err => {
       const msg = 'Summary: ' + err.message;
@@ -910,9 +898,14 @@ function loadSummary(period) {
 
 // ── Load 8 trend line charts from readHistory ──
 function _loadTrendForPeriod(period) {
-  const rangeMap = { day: 'today', week: '7d', month: '30d' };
-  const range = rangeMap[period] || 'today';
-  const url = SHEETS_URL + '?action=read&range=' + range;
+  let url = SHEETS_URL + '?action=read';
+  if (period === 'day') {
+    const dv = (document.getElementById('sum-date') || {}).value;
+    url += dv ? ('&date=' + dv) : '&range=today';
+  } else {
+    const mv = (document.getElementById('sum-month') || {}).value;
+    url += mv ? ('&month=' + mv) : '&range=30d';
+  }
 
   fetch(url, { redirect: 'follow' })
     .then(r => r.text())
@@ -1001,7 +994,6 @@ function showPage(name) {
     if (b.textContent.toLowerCase().includes(name.substring(0,4).toLowerCase()))
       b.classList.add('active');
   });
-  if (name === 'history') loadSheets();
   if (name === 'summary') loadSummary('day');
 }
 
@@ -1082,7 +1074,7 @@ function setRange(r) {
 
 function exportCSV() {
   if (!ST.sheetsData.length) return;
-  const hdr  = 'Timestamp,Input,Output,Wastewater,Power,Efficiency,CumInput,CumOutput';
+  const hdr  = 'Timestamp,Input,UsageWater,Wastewater,Power,Efficiency,CumInput,CumOutput';
   const rows = ST.sheetsData.map(r =>
     [r.Timestamp, r.Inputwater, r.Outputwater, r.Wastewater, r.Power,
      r.Efficiency, r.CumInput, r.CumOutput].join(','));
@@ -1130,14 +1122,13 @@ window.addEventListener('load', function () {
     })
     .catch(e => showDebug('Failed to fetch — ' + e.message));
 
-  // โหลด Accumulated Summary (Today)
-  loadSummary('day');
+  // โหลด Accumulated Summary (Day = today)
+  setSumMode('day');
 
 
   // Auto-refresh summary ทุก 30 นาที
   setInterval(function() {
-    const activePeriod = document.querySelector('.sum-btn.active')?.dataset?.period || 'day';
-    loadSummary(activePeriod);
+    loadSummary();
   }, 30 * 60 * 1000);
 });
 
